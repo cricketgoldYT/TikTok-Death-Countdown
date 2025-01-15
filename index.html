@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sunday Countdown</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #000000;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1e1e1e;
+            --text-color: #ffffff;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        #timer {
+            font-size: 2rem;
+            margin-top: 20px;
+        }
+
+        select {
+            font-size: 1rem;
+            padding: 5px;
+        }
+
+        #theme-toggle {
+            margin-top: 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: var(--text-color);
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        label {
+            margin-bottom: 10px;
+        }
+
+        #support-link {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            color: var(--text-color);
+            text-decoration: underline; /* Add this line to underline the link */
+        }
+
+        #support-link:hover {
+            text-decoration: none; /* Optional: remove the underline on hover */
+        }
+    </style>
+</head>
+<body>
+    <h1>Countdown To TikTok's Death 💀</h1>
+    <label for="timezone">Select Your Timezone:</label>
+    <select id="timezone">
+        <option value="Etc/GMT+5">Eastern Time (ET)</option>
+        <option value="Etc/GMT+6">Central Time (CT)</option>
+        <option value="Etc/GMT+7">Mountain Time (MT)</option>
+        <option value="Etc/GMT+8">Pacific Time (PT)</option>
+        <option value="Etc/GMT+9">Alaska Time (AKT)</option>
+        <option value="Etc/GMT+10">Hawaii-Aleutian Time (HAT)</option>
+    </select>
+
+    <div id="timer">Loading...</div>
+
+    <button id="theme-toggle">🌙</button>
+
+    <!-- Support Link -->
+    <a id="support-link" href="https://buymeacoffee.com/cricketgoldyt" target="_blank">Support Me!</a>
+
+    <script>
+        // Get DOM elements
+        const timezoneSelect = document.getElementById('timezone');
+        const timerElement = document.getElementById('timer');
+        const themeToggle = document.getElementById('theme-toggle');
+
+        function getNextSunday(now) {
+            const dayOfWeek = now.getDay(); // Sunday is 0, Monday is 1, ..., Saturday is 6
+            const daysUntilSunday = (7 - dayOfWeek) % 7; // Days left to reach Sunday
+            const nextSunday = new Date(now);
+            nextSunday.setDate(now.getDate() + daysUntilSunday);
+            nextSunday.setHours(0, 0, 0, 0); // Set time to 00:00:00
+            return nextSunday;
+        }
+
+        function updateTimer() {
+            // Get the selected timezone offset
+            const timezoneOffset = parseInt(timezoneSelect.value.replace('Etc/GMT', ''), 10) * -60; // Convert to minutes
+
+            // Get the current time in UTC
+            const nowUTC = new Date();
+
+            // Calculate the adjusted current time for the selected timezone
+            const nowInSelectedTZ = new Date(nowUTC.getTime() + timezoneOffset * 60000);
+
+            // Get the next Sunday in the selected timezone
+            const nextSundayInSelectedTZ = getNextSunday(nowInSelectedTZ);
+
+            // Calculate the time remaining until the next Sunday at 00:00
+            const timeRemaining = nextSundayInSelectedTZ - nowInSelectedTZ;
+
+            if (timeRemaining > 0) {
+                const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+                // Display the countdown
+                timerElement.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            } else {
+                timerElement.textContent = "It's Sunday!";
+            }
+        }
+
+        // Update the timer every second
+        let timerInterval = setInterval(updateTimer, 1000);
+
+        // Update the timer when the timezone changes
+        timezoneSelect.addEventListener('change', () => {
+            clearInterval(timerInterval); // Clear existing interval to prevent overlapping updates
+            timerInterval = setInterval(updateTimer, 1000); // Start a new interval
+            updateTimer(); // Update immediately on change
+        });
+
+        // Initialize the timer
+        updateTimer();
+
+        // Theme toggle functionality
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.body.getAttribute('data-theme');
+            if (currentTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'light');
+                themeToggle.textContent = '🌙';
+            } else {
+                document.body.setAttribute('data-theme', 'dark');
+                themeToggle.textContent = '☀️';
+            }
+        });
+
+        // Set initial theme to light
+        document.body.setAttribute('data-theme', 'light');
+    </script>
+</body>
+</html>
